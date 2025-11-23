@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Netflix Clone — Demo</title>
+  <style>
+    :root{
+      --bg:#0b0f13;
+      --card:#111418;
+      --muted:#9aa4af;
+      --accent:#e50914; /* Netflix red */
+      --glass: rgba(255,255,255,0.03);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, 'Helvetica Neue', Arial;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background: linear-gradient(180deg, #071018 0%, #051017 60%);
+      color:#e6eef6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Header */
+    .header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:18px 28px;position:sticky;top:0;background:linear-gradient(180deg, rgba(11,15,19,0.85), rgba(11,15,19,0.3));backdrop-filter: blur(6px);z-index:40;border-bottom:1px solid rgba(255,255,255,0.02);
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{font-weight:800;color:var(--accent);font-size:20px;letter-spacing:1px}
+    .nav{display:flex;gap:12px;align-items:center}
+    .nav a{color:var(--muted);text-decoration:none;font-size:14px}
+
+    .controls{display:flex;gap:12px;align-items:center}
+    .search{background:var(--glass);border-radius:6px;padding:6px 10px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.02)}
+    .search input{background:transparent;border:0;outline:none;color:inherit;font-size:14px}
+    .avatar{width:34px;height:34px;border-radius:4px;background:linear-gradient(135deg,#263344,#1b2a33);display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
+
+    /* Hero */
+    .hero{padding:40px 6%;display:flex;gap:30px;align-items:flex-end}
+    .hero .left{max-width:620px}
+    .title{font-size:36px;margin:0 0 8px}
+    .subtitle{color:var(--muted);margin:0 0 16px}
+    .cta{display:flex;gap:12px}
+    .btn{padding:12px 20px;border-radius:6px;border:0;cursor:pointer;font-weight:600}
+    .btn.play{background:var(--accent);color:#fff}
+    .btn.info{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+
+    .hero .poster{width:320px;height:180px;border-radius:8px;background-size:cover;background-position:center;box-shadow: 0 20px 40px rgba(0,0,0,0.6)}
+
+    /* Sections */
+    .section{padding:18px 6%}
+    .section h3{margin:6px 0 10px}
+    .row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(180px,1fr);gap:12px;overflow-x:auto;padding:8px 0}
+    .card{background:var(--card);border-radius:8px;height:260px;overflow:hidden;min-width:180px;position:relative;cursor:pointer}
+    .card img{width:100%;height:100%;object-fit:cover;display:block}
+    .card .meta{position:absolute;left:8px;bottom:8px;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.6));padding:8px;border-radius:6px;color:#fff;font-size:13px}
+
+    /* Grid for large screen */
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:28px;z-index:60}
+    .modal{background:#07090b;border-radius:10px;max-width:900px;width:100%;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.7)}
+    .modal .inner{display:flex;gap:18px}
+    .modal .left{min-width:320px;height:100%;background-size:cover;background-position:center}
+    .modal .right{padding:18px;color:var(--muted)}
+    .close{position:absolute;top:12px;right:14px;background:transparent;border:0;color:var(--muted);font-size:18px}
+
+    /* responsive */
+    @media (max-width:900px){
+      .hero{flex-direction:column;align-items:flex-start}
+      .hero .poster{width:100%;height:200px}
+      .row{grid-auto-columns:minmax(140px,1fr)}
+    }
+
+    /* small tweaks */
+    ::-webkit-scrollbar{height:8px}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:8px}
+    .muted{color:var(--muted)}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="logo">NETFLIX</div>
+      <nav class="nav">
+        <a href="#">Home</a>
+        <a href="#">TV Shows</a>
+        <a href="#">Movies</a>
+        <a href="#">My List</a>
+      </nav>
+    </div>
+
+    <div class="controls">
+      <div class="search" role="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2"></circle></svg>
+        <input id="searchInput" placeholder="Search movies, shows..." aria-label="Search movies" />
+      </div>
+      <div class="avatar" title="Aman">AS</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="left">
+        <h1 class="title">Watch something amazing</h1>
+        <p class="subtitle">A small demo Netflix-style UI. Click any poster to see details. Built with pure HTML/CSS/JS — no backend required.</p>
+        <div class="cta">
+          <button class="btn play" id="randomPlay">Play</button>
+          <button class="btn info" id="moreInfo">More Info</button>
+        </div>
+      </div>
+      <div class="poster" id="heroPoster" style="background-image:url('https://picsum.photos/seed/net1/600/340')" aria-hidden></div>
+    </section>
+
+    <section class="section">
+      <h3>Trending Now</h3>
+      <div class="row" id="trendingRow"></div>
+    </section>
+
+    <section class="section">
+      <h3>Recently Added</h3>
+      <div class="row" id="recentRow"></div>
+    </section>
+
+    <section class="section">
+      <h3>All Titles</h3>
+      <div class="grid" id="allGrid"></div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-hidden="true">
+    <div class="modal" id="modal">
+      <button class="close" id="closeModal">✕</button>
+      <div class="inner">
+        <div class="left" id="modalLeft" style="background-image:url('https://picsum.photos/seed/net2/800/600')"></div>
+        <div class="right">
+          <h2 id="modalTitle">Title</h2>
+          <p id="modalMeta" class="muted">Year • Genre • 1h 58m</p>
+          <p id="modalDesc" style="margin-top:12px;color:#dfe9f2">Description goes here. This demo uses placeholder images and static data arrays. Replace with your API or JSON to make it dynamic.</p>
+          <div style="margin-top:18px;display:flex;gap:10px">
+            <button class="btn play" id="modalPlay">Play</button>
+            <button class="btn info" id="modalAdd">+ My List</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock dataset (replace with API data if you want)
+    const MOVIES = [
+      {id:1,title:'The Silent Shore',year:2024,genre:'Drama',length:'1h 54m',img:'https://picsum.photos/seed/m1/400/600',desc:'A moving story about family and resilience.'},
+      {id:2,title:'Midnight Chase',year:2023,genre:'Action',length:'2h 6m',img:'https://picsum.photos/seed/m2/400/600',desc:'High-octane chase across neon-lit cities.'},
+      {id:3,title:'Starlit Dreams',year:2022,genre:'Romance',length:'1h 48m',img:'https://picsum.photos/seed/m3/400/600',desc:'An unlikely romance under the stars.'},
+      {id:4,title:'Edge of Tomorrow',year:2021,genre:'Sci-Fi',length:'2h 12m',img:'https://picsum.photos/seed/m4/400/600',desc:'A mind-bending journey through time.'},
+      {id:5,title:'Hidden Truths',year:2020,genre:'Thriller',length:'1h 50m',img:'https://picsum.photos/seed/m5/400/600',desc:'A detective unravels a dangerous conspiracy.'},
+      {id:6,title:'Ocean Whispers',year:2024,genre:'Adventure',length:'1h 40m',img:'https://picsum.photos/seed/m6/400/600',desc:'A voyage across mysterious seas.'},
+      {id:7,title:'Neon Nights',year:2019,genre:'Crime',length:'1h 55m',img:'https://picsum.photos/seed/m7/400/600',desc:'Crime and redemption in a city that never sleeps.'},
+      {id:8,title:'Laugh Riot',year:2018,genre:'Comedy',length:'1h 30m',img:'https://picsum.photos/seed/m8/400/600',desc:'A feel-good comedy for the weekend.'},
+      {id:9,title:'Documented',year:2025,genre:'Documentary',length:'1h 20m',img:'https://picsum.photos/seed/m9/400/600',desc:'Exploring the unseen corners of our planet.'}
+    ];
+
+    // Utilities
+    const q = sel => document.querySelector(sel);
+    const qa = sel => document.querySelectorAll(sel);
+
+    function createCard(movie){
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.setAttribute('tabindex','0');
+      el.innerHTML = `\n        <img loading="lazy" src="${movie.img}" alt="${movie.title} poster">\n        <div class="meta">${movie.title} • ${movie.year}</div>\n      `;
+      el.addEventListener('click', ()=> openModal(movie));
+      el.addEventListener('keydown', (e)=>{ if(e.key==='Enter') openModal(movie); });
+      return el;
+    }
+
+    function populateRow(rowEl, list){
+      rowEl.innerHTML = '';
+      list.forEach(m=> rowEl.appendChild(createCard(m)));
+    }
+
+    function populateGrid(gridEl, list){
+      gridEl.innerHTML = '';
+      list.forEach(m=> gridEl.appendChild(createCard(m)));
+    }
+
+    // initial render
+    const trending = MOVIES.slice(0,6);
+    populateRow(q('#trendingRow'), trending);
+    populateRow(q('#recentRow'), MOVIES.slice(3));
+    populateGrid(q('#allGrid'), MOVIES.concat(MOVIES)); // show more cards
+
+    // hero poster random
+    const heroPoster = q('#heroPoster');
+    function setHero(movie){ heroPoster.style.backgroundImage = `url('${movie.img.replace('/400/600','/800/450')}')`; }
+    setHero(MOVIES[0]);
+
+    // modal
+    const modalBackdrop = q('#modalBackdrop');
+    const modalTitle = q('#modalTitle');
+    const modalMeta = q('#modalMeta');
+    const modalDesc = q('#modalDesc');
+    const modalLeft = q('#modalLeft');
+
+    function openModal(movie){
+      modalTitle.textContent = movie.title;
+      modalMeta.textContent = `${movie.year} • ${movie.genre} • ${movie.length}`;
+      modalDesc.textContent = movie.desc;
+      modalLeft.style.backgroundImage = `url('${movie.img.replace('/400/600','/800/600')}')`;
+      modalBackdrop.style.display = 'flex';
+      modalBackdrop.setAttribute('aria-hidden','false');
+    }
+    function closeModal(){ modalBackdrop.style.display = 'none'; modalBackdrop.setAttribute('aria-hidden','true'); }
+    q('#closeModal').addEventListener('click', closeModal);
+    modalBackdrop.addEventListener('click', (e)=>{ if(e.target===modalBackdrop) closeModal(); });
+
+    // search
+    const searchInput = q('#searchInput');
+    searchInput.addEventListener('input', (e)=>{
+      const v = e.target.value.trim().toLowerCase();
+      if(!v){ populateGrid(q('#allGrid'), MOVIES.concat(MOVIES)); return; }
+      const filtered = MOVIES.filter(m=> m.title.toLowerCase().includes(v) || m.genre.toLowerCase().includes(v));
+      populateGrid(q('#allGrid'), filtered);
+    });
+
+    // random play
+    q('#randomPlay').addEventListener('click', ()=>{
+      const choice = MOVIES[Math.floor(Math.random()*MOVIES.length)];
+      openModal(choice);
+    });
+
+    // more info button opens first item
+    q('#moreInfo').addEventListener('click', ()=> openModal(MOVIES[0]));
+
+    // accessible keyboard close
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+
+    // small UX: lazy load images if supported (already used loading=lazy)
+
+    // Notes for next steps (inside console)
+    console.info('Netflix-clone demo ready. Replace MOVIES with API or add auth, player, watchlist persistence.');
+  </script>
+</body>
+</html>
